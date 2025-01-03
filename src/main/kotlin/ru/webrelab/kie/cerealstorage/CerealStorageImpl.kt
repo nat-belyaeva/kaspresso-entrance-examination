@@ -30,7 +30,6 @@ class CerealStorageImpl(
     override fun addCereal(cereal: Cereal, amount: Float): Float {
         checkAmountNotNegative(amount)
 
-        // Проверка на доступное место в хранилище
         if (usedStorage + containerCapacity > storageCapacity) {
             throw IllegalStateException("Хранилище не позволяет разместить ещё один контейнер для новой крупы")
         }
