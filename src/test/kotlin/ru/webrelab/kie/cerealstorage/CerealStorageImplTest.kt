@@ -130,7 +130,8 @@ class CerealStorageImplTest {
     fun `toString should return correct string representation of storage`() {
         storage.addCereal(Cereal.BUCKWHEAT, 3f)
         storage.addCereal(Cereal.RICE, 5f)
-        val expectedString = "CerealStorage (containerCapacity=10.0, storageCapacity=20.0)\n  Гречка: 3.0 кг\n  Рис: 5.0 кг\n"
+        val expectedString =
+            "CerealStorage (containerCapacity=10.0, storageCapacity=20.0)\n  Гречка: 3.0 кг\n  Рис: 5.0 кг\n"
         assertEquals(expectedString, storage.toString())
     }
 }
