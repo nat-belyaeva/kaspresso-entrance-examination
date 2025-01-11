@@ -15,11 +15,6 @@ class CerealStorageImpl(
     }
 
     private val storage = mutableMapOf<Cereal, Float>()
-    private var usedStorage = 0f
-
-    private fun getCurrentAmount(cereal: Cereal): Float {
-        return storage.getOrDefault(cereal, 0f)
-    }
 
     private fun checkAmountNotNegative(amount: Float) {
         require(amount >= 0) {
@@ -27,31 +22,34 @@ class CerealStorageImpl(
         }
     }
 
+    private fun getUsedStorage(): Float {
+        return storage.values.sum()
+    }
+
     override fun addCereal(cereal: Cereal, amount: Float): Float {
         checkAmountNotNegative(amount)
 
-        if (usedStorage + containerCapacity > storageCapacity) {
+        val currentAmount = getAmount(cereal)
+        val remainingSpace = getSpace(cereal)
+
+        if (getUsedStorage() + containerCapacity > storageCapacity) {
             throw IllegalStateException("Хранилище не позволяет разместить ещё один контейнер для новой крупы")
         }
 
-        val currentAmount = getCurrentAmount(cereal)
-        val remainingSpace = containerCapacity - currentAmount
-
         return if (amount <= remainingSpace) {
             storage[cereal] = currentAmount + amount
-            usedStorage += amount
             0f
         } else {
             storage[cereal] = containerCapacity
-            usedStorage += remainingSpace
             amount - remainingSpace
         }
     }
 
+
     override fun getCereal(cereal: Cereal, amount: Float): Float {
         checkAmountNotNegative(amount)
 
-        val currentAmount = getCurrentAmount(cereal)
+        val currentAmount = getAmount(cereal)
 
         if (currentAmount == 0f) {
             return 0f
@@ -59,34 +57,29 @@ class CerealStorageImpl(
 
         return if (amount <= currentAmount) {
             storage[cereal] = currentAmount - amount
-            usedStorage -= amount
             amount
         } else {
-            val amountToReturn = currentAmount
-            storage[cereal] = 0f
-            usedStorage -= currentAmount
-            amountToReturn
+            storage.remove(cereal)
+            currentAmount
         }
     }
 
     override fun removeContainer(cereal: Cereal): Boolean {
-        val currentAmount = getCurrentAmount(cereal)
+        val currentAmount = getAmount(cereal)
 
         if (currentAmount > 0f) {
             return false
         }
-
         storage.remove(cereal)
         return true
     }
 
     override fun getAmount(cereal: Cereal): Float {
-        return getCurrentAmount(cereal)
+        return storage.getOrDefault(cereal,0f)
     }
 
     override fun getSpace(cereal: Cereal): Float {
-        val currentAmount = getCurrentAmount(cereal)
-        return containerCapacity - currentAmount
+         return containerCapacity - getAmount(cereal)
     }
 
     override fun toString(): String {
